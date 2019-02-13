@@ -16,7 +16,7 @@
     </style>
 </head>
 <body>
-<p>liczba wczytanych ofert: ${offerCounter}</p>
+<p>liczba wczytanych ofert: ${offerCount}</p>
 <h1>nowe oferty:</h1>
 <table>
     <tr>
@@ -42,7 +42,8 @@
         <th>opis</th>
         <th>sprzedawca</th>
         <th>powierzchnia<br/>[m²]</th>
-        <th>cena<br/>[tys. zł]</th>
+        <th>stara cena<br/>[tys. zł]</th>
+        <th>nowa cena<br/>[tys. zł]</th>
         <th>cena/m²<br/>[tys. zł]</th>
     </tr>
     <c:forEach items="${updatedOffers}" var="offer">
@@ -50,6 +51,7 @@
             <td>${offer.description}</td>
             <td>${offer.seller}</td>
             <td class="center">${offer.area}</td>
+            <td class="center">${offer.oldPrice}</td>
             <td class="center">${offer.price}</td>
             <td class="center">${offer.pricePerM2}</td>
         </tr>

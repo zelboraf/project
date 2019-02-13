@@ -1,7 +1,6 @@
 package com.example.project.offer;
 
-import com.example.project.offer.Offer;
-import com.example.project.offer.OfferInterface;
+import lombok.extern.java.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,12 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@Log
 public class OfferController {
 
 	private final OfferInterface offerInterface;
+	private final OfferService offerService;
 
-	public OfferController(OfferInterface offerInterface) {
+	public OfferController(OfferInterface offerInterface, OfferService offerService) {
 		this.offerInterface = offerInterface;
+		this.offerService = offerService;
 	}
 
 	private double parseNumber(String s) {
@@ -29,14 +31,12 @@ public class OfferController {
 
 	@RequestMapping("/get")
 	public String getOffers(Model model) {
+
 		try {
 			String url = "https://www.otodom.pl/sprzedaz/mieszkanie/gdansk/srodmiescie/?search%5Bdist%5D=0&search%5Bdistrict_id%5D=28&search%5Bsubregion_id%5D=439&search%5Bcity_id%5D=40&search%5Border%5D=created_at_first%3Adesc&nrAdsPerPage=72";
 			Document document = Jsoup.connect(url).get();
-
-			int offerCounter = 0;
-			List<Offer> newOffers = new ArrayList<>();
-			List<Offer> updatedOffers = new ArrayList<>();
 			Elements offerHtml = document.select("article");
+			List<Offer> offers = new ArrayList<>();
 			for (Element e : offerHtml) {
 				Offer offer = new Offer();
 				offer.setOfferId(e.attr("data-tracking-id"));
@@ -46,18 +46,12 @@ public class OfferController {
 				offer.setPricePerM2(Double.valueOf(df.format(offer.getPrice() / offer.getArea())));
 				offer.setDescription(e.select(".offer-item-title").text());
 				offer.setSeller(e.select(".pull-right").text());
-
-				if (offerInterface.existsByOfferId(offer.getOfferId())) {
-					updatedOffers.add(offer);
-				} else {
-					newOffers.add(offer);
-					offerInterface.save(offer);
-				}
-				offerCounter++;
+				offers.add(offer);
 			}
-			model.addAttribute("offerCounter", offerCounter);
-			model.addAttribute("updatedOffers", updatedOffers);
-			model.addAttribute("newOffers", newOffers);
+			offerService.offerUpdate(offers);
+			model.addAttribute("offerCount", offerService.getOfferCount());
+			model.addAttribute("updatedOffers", offerService.getUpdatedOffers());
+			model.addAttribute("newOffers", offerService.getNewOffers());
 			return "get";
 		} catch (Exception e) {
 			e.printStackTrace();

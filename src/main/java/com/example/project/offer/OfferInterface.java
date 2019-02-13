@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface OfferInterface extends JpaRepository<Offer, Long> {
 
-	List<Offer> findByOfferId(String offerId);
+	Offer findByOfferId(String offerId);
 
 	boolean existsByOfferId(String offerId);
 

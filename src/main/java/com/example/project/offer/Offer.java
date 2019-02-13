@@ -1,7 +1,6 @@
 package com.example.project.offer;
 
 import lombok.Data;
-
 import javax.persistence.*;
 
 @Entity
@@ -12,9 +11,14 @@ public class Offer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
+	@Column(name = "offer_id", nullable = false)
 	private String offerId;
+	@Column(name = "price", nullable = false)
 	private double price;
+	@Column(name = "area", nullable = false)
 	private double area;
+	@Column(name = "old_price", nullable = true)
+	private double oldPrice;
 	@Column(name = "price_per_m2")
 	private double pricePerM2;
 	private String description;
@@ -30,4 +34,6 @@ public class Offer {
 		this.description = description;
 		this.seller = seller;
 	}
+
+
 }
