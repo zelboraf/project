@@ -16,7 +16,7 @@
     </style>
 </head>
 <body>
-<p>liczba wczytanych ofert: ${offerCount}</p>
+<p>wczytanych ofert: ${countProcessed}, nowych: ${countNew}, zaktualizowanych: ${countUpdated}, zapisanych w bazie: ${countAll}</p>
 <h1>nowe oferty:</h1>
 <table>
     <tr>

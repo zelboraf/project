@@ -20,4 +20,8 @@ public interface OfferInterface extends JpaRepository<Offer, Long> {
 	@Query(value = "SELECT FORMAT(AVG(price_per_m2), 2) FROM offers", nativeQuery = true)
 	double getAvgPricePerM2();
 
+	@Query(value = "SELECT COUNT(*) FROM offers", nativeQuery = true)
+	long countAll();
+
+
 }

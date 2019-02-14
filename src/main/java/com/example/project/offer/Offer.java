@@ -17,11 +17,13 @@ public class Offer {
 	private double price;
 	@Column(name = "area", nullable = false)
 	private double area;
-	@Column(name = "old_price", nullable = true)
+	@Column(name = "old_price")
 	private double oldPrice;
 	@Column(name = "price_per_m2")
 	private double pricePerM2;
+	@Column(name = "descripiton")
 	private String description;
+	@Column(name = "seller")
 	private String seller;
 
 	public Offer() {}
