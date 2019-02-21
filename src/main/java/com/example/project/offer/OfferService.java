@@ -15,14 +15,18 @@ import java.util.List;
 public class OfferService {
 
 	private final OfferInterface offerInterface;
+	private final PriceInterface priceInterface;
 
-	public OfferService(OfferInterface offerInterface) {
+	public OfferService(OfferInterface offerInterface, PriceInterface priceInterface) {
 		this.offerInterface = offerInterface;
+		this.priceInterface = priceInterface;
 	}
 
 	private List<Offer> newOffers = new ArrayList<>();
 	private List<Offer> updatedOffers = new ArrayList<>();
 	private List<Offer> oldOffers = new ArrayList<>();
+	private List<Price> newPrices = new ArrayList<>();
+	private List<Price> oldPrices = new ArrayList<>();
 	private int countProcessed;
 	private int countNew;
 	private int countUpdated;
@@ -34,14 +38,12 @@ public class OfferService {
 			String offerId = newOffer.getOfferId();
 			if (offerInterface.existsByOfferId(offerId)) {
 				Offer offer = offerInterface.findByOfferId(offerId);
+				Price price = priceInterface.getCurrentPrice();
 				if (offer.getPrice() != newOffer.getPrice()) {
-					offer.setOldPrice(offer.getPrice());
 					offer.setPrice(newOffer.getPrice());
 					updatedOffers.add(offer);
 					offerInterface.save(offer);
 					countUpdated++;
-				} else {
-				    // offer already in db, no changes
 				}
 			} else {
 				newOffers.add(newOffer);
@@ -50,6 +52,20 @@ public class OfferService {
 			}
 			countProcessed++;
 		}
+	}
+
+	public Offer getAverageOffer() {
+		Offer averageOffer = new Offer();
+		if (offerInterface.countAll() > 0) {
+			averageOffer.setArea(offerInterface.getAvgArea());
+			averageOffer.setPrice(offerInterface.getAvgPrice());
+			averageOffer.setPricePerM2(offerInterface.getAvgPricePerM2());
+		} else {
+			averageOffer.setArea(0);
+			averageOffer.setPrice(0);
+			averageOffer.setPricePerM2(0);
+		}
+		return averageOffer;
 	}
 
 }

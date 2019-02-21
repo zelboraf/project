@@ -57,5 +57,8 @@
         </tr>
     </c:forEach>
 </table>
+<form action="/">
+    <input type="submit" value="home" />
+</form>
 </body>
 </html>
