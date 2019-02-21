@@ -74,7 +74,7 @@ public class OfferController {
 
 	@GetMapping("/")
 	public String showOffers(Model model) {
-		model.addAttribute("averageOffer", offerService.getAverageOffer());
+//		model.addAttribute("averageOffer", offerService.getAverageOffer());
 		model.addAttribute("residentialTypes", residentialTypeInterface.findAll());
 		model.addAttribute("districts", districtInterface.findAll());
 		model.addAttribute("offers", offerInterface.findAll());

@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "prices")
@@ -15,7 +16,6 @@ public class Price {
 	private long id;
 	private double value;
 	private LocalDateTime localDateTime;
-	@ManyToMany
-	private Offer offer;
+	private List<Offer> offers;
 
 }

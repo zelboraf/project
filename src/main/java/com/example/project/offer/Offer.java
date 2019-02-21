@@ -2,6 +2,7 @@ package com.example.project.offer;
 
 import lombok.Data;
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "offers")
@@ -14,8 +15,8 @@ public class Offer {
 	@Column(name = "offer_id", nullable = false)
 	private String offerId;
 	@Column(name = "price", nullable = false)
-	@ManyToMany
-	private Price price;
+	@ManyToMany(cascade = CascadeType.ALL)
+	private List<Price> prices;
 	@Column(name = "area", nullable = false)
 	private double area;
 //	@Column(name = "old_price")
@@ -32,8 +33,5 @@ public class Offer {
 	@JoinColumn(name = "district_id")
 	@ManyToOne
 	private District district;
-
-
-	public Offer() {}
 
 }

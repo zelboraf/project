@@ -38,8 +38,8 @@ public class OfferService {
 			String offerId = newOffer.getOfferId();
 			if (offerInterface.existsByOfferId(offerId)) {
 				Offer offer = offerInterface.findByOfferId(offerId);
-				Price price = priceInterface.getCurrentPrice();
-				if (offer.getPrice() != newOffer.getPrice()) {
+//				Price price = priceInterface.getCurrentPrice();
+				if (offer.getCurrentPrice() != newOffer.getCurrentPrice()) {
 					offer.setPrice(newOffer.getPrice());
 					updatedOffers.add(offer);
 					offerInterface.save(offer);
@@ -54,18 +54,18 @@ public class OfferService {
 		}
 	}
 
-	public Offer getAverageOffer() {
-		Offer averageOffer = new Offer();
-		if (offerInterface.countAll() > 0) {
-			averageOffer.setArea(offerInterface.getAvgArea());
-			averageOffer.setPrice(offerInterface.getAvgPrice());
-			averageOffer.setPricePerM2(offerInterface.getAvgPricePerM2());
-		} else {
-			averageOffer.setArea(0);
-			averageOffer.setPrice(0);
-			averageOffer.setPricePerM2(0);
-		}
-		return averageOffer;
-	}
+//	public Offer getAverageOffer() {
+//		Offer averageOffer = new Offer();
+//		if (offerInterface.countAll() > 0) {
+//			averageOffer.setArea(offerInterface.getAvgArea());
+//			averageOffer.setPrice(offerInterface.getAvgPrice());
+//			averageOffer.setPricePerM2(offerInterface.getAvgPricePerM2());
+//		} else {
+//			averageOffer.setArea(0);
+//			averageOffer.setPrice(0);
+//			averageOffer.setPricePerM2(0);
+//		}
+//		return averageOffer;
+//	}
 
 }
