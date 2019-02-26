@@ -1,17 +1,19 @@
 package com.example.project.offer;
 
 import lombok.Data;
+import lombok.extern.java.Log;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Data
+@Log
 public class OfferService {
 
 	private final OfferInterface offerInterface;
@@ -22,50 +24,49 @@ public class OfferService {
 		this.priceInterface = priceInterface;
 	}
 
-	private List<Offer> newOffers = new ArrayList<>();
+	private List<Offer> createdOffers = new ArrayList<>();
 	private List<Offer> updatedOffers = new ArrayList<>();
-	private List<Offer> oldOffers = new ArrayList<>();
-	private List<Price> newPrices = new ArrayList<>();
-	private List<Price> oldPrices = new ArrayList<>();
-	private int countProcessed;
-	private int countNew;
-	private int countUpdated;
+	private List<Counter> counters = new ArrayList<>();
 
-
-	public void offerUpdate(List<Offer> offers) {
-		countProcessed = countNew = countUpdated = 0;
+	public List<List> updateNewOffers(List<Offer> offers) {
+		Counter counter = new Counter();
 		for (Offer newOffer : offers) {
 			String offerId = newOffer.getOfferId();
-			if (offerInterface.existsByOfferId(offerId)) {
-				Offer offer = offerInterface.findByOfferId(offerId);
-//				Price price = priceInterface.getCurrentPrice();
-				if (offer.getCurrentPrice() != newOffer.getCurrentPrice()) {
+			try {
+				Offer offer = offerInterface.findOneByOfferId(offerId);
+				if (newOffer.getPrice() != offer.getPrice()) {
+					log.info("new offer");
 					offer.setPrice(newOffer.getPrice());
+					offer.setLocalDateTime(newOffer.getLocalDateTime());
 					updatedOffers.add(offer);
 					offerInterface.save(offer);
-					countUpdated++;
+					Price price = new Price(offer.getPrice(), offer.getLocalDateTime());
+					offer.getPriceHistory().add(price);
+					priceInterface.save(price);
+					counter.incUpdated();
 				}
-			} else {
-				newOffers.add(newOffer);
+			} catch (Exception ex){
+				log.info("new offer");
+				createdOffers.add(newOffer);
 				offerInterface.save(newOffer);
-				countNew++;
+				counter.incCreated();
 			}
-			countProcessed++;
+			counter.incProcessed();
 		}
+		counter.setAll(offerInterface.countAll());
+		counters.add(counter);
+		return new ArrayList<>(Arrays.asList(updatedOffers, createdOffers, counters));
 	}
 
-//	public Offer getAverageOffer() {
-//		Offer averageOffer = new Offer();
-//		if (offerInterface.countAll() > 0) {
-//			averageOffer.setArea(offerInterface.getAvgArea());
-//			averageOffer.setPrice(offerInterface.getAvgPrice());
-//			averageOffer.setPricePerM2(offerInterface.getAvgPricePerM2());
-//		} else {
-//			averageOffer.setArea(0);
-//			averageOffer.setPrice(0);
-//			averageOffer.setPricePerM2(0);
-//		}
-//		return averageOffer;
-//	}
+	public Offer getAverageOffer() {
+		if (offerInterface.countAll() > 0) {
+			return new Offer(
+					offerInterface.getAvgPrice(),
+					offerInterface.getAvgArea(),
+					offerInterface.getAvgPricePerM2()
+			);
+		}
+		return new Offer(0, 0, 0);
+	}
 
 }

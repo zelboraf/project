@@ -16,6 +16,10 @@ public class Price {
 	private long id;
 	private double value;
 	private LocalDateTime localDateTime;
-	private List<Offer> offers;
+
+	public Price(double value, LocalDateTime localDateTime) {
+		this.value = value;
+		this.localDateTime = localDateTime;
+	}
 
 }

@@ -9,7 +9,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,48 +32,43 @@ public class OfferController {
 	}
 
 	@GetMapping("/update")
-	public String updateOffers(@RequestParam String residentialType, @RequestParam String district, Model model) {
+	public String updateOffers(@RequestParam String residentialTypeName, @RequestParam String districtName, Model model) {
 		try {
-			String URL = "https://www.otodom.pl/sprzedaz/" + residentialType + "/gdansk/" + district +
-					"?search[filter_float_m%3Afrom]=70&search[filter_float_m%3Ato]=80";
+			String URL = "https://www.otodom.pl/sprzedaz/" + residentialTypeName + "/gdansk/" + districtName;
 			String CSS_QUERY = "div.col-md-content article.offer-item[data-featured-name='listing_no_promo']";
 
 			Document document = Jsoup.connect(URL).get();
 			Elements offerHtml = document.select(CSS_QUERY);
 			List<Offer> offers = new ArrayList<>();
-			List<Price> prices = new ArrayList<>();
+			District district = districtInterface.getOneByName(districtName);
+			ResidentialType residentialType = residentialTypeInterface.getOneByName(residentialTypeName);
 			for (Element e : offerHtml) {
-				Offer offer = new Offer();
-				Price price = new Price();
-				offer.setOfferId(e.attr("data-tracking-id"));
-				offer.setArea(parseNumber(e.select(".offer-item-area").text()));
-				price.setValue(parseNumber(e.select(".offer-item-price").text()) / 1000);
-				DecimalFormat df = new DecimalFormat("#.#");
-				offer.setPricePerM2(Double.valueOf(df.format(price.getValue() / offer.getArea())));
-				offer.setDescription(e.select(".offer-item-title").text());
-				offer.setSeller(e.select(".pull-right").text());
-				offer.setDistrict(districtInterface.getOneByName(district));
-				offer.setResidentialType(residentialTypeInterface.getOneByName(residentialType));
+				Offer offer = new Offer(
+						e.attr("data-tracking-id"),
+						Math.round(parseNumber(e.select(".offer-item-price").text()) / 100.0) / 10.0,
+						parseNumber(e.select(".offer-item-area").text()),
+						e.select(".offer-item-title").text(),
+						e.select(".pull-right").text(),
+						residentialType,
+						district
+				);
+//				Price price = new Price();
 				offers.add(offer);
-				prices.add(price);
 			}
-			offerService.offerUpdate(offers);
-			model.addAttribute("countProcessed", offerService.getCountProcessed());
-			model.addAttribute("countNew", offerService.getCountNew());
-			model.addAttribute("countUpdated", offerService.getCountUpdated());
-			model.addAttribute("countAll", offerInterface.countAll());
-			model.addAttribute("updatedOffers", offerService.getUpdatedOffers());
-			model.addAttribute("newOffers", offerService.getNewOffers());
+			List<List> updatedNewOffers = offerService.updateNewOffers(offers);
+			model.addAttribute("updatedOffers", updatedNewOffers.get(0));
+			model.addAttribute("createdOffers", updatedNewOffers.get(1));
+			model.addAttribute("counters", updatedNewOffers.get(2));
 			return "update";
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 		return null;
 	}
 
 	@GetMapping("/")
 	public String showOffers(Model model) {
-//		model.addAttribute("averageOffer", offerService.getAverageOffer());
+		model.addAttribute("averageOffer", offerService.getAverageOffer());
 		model.addAttribute("residentialTypes", residentialTypeInterface.findAll());
 		model.addAttribute("districts", districtInterface.findAll());
 		model.addAttribute("offers", offerInterface.findAll());

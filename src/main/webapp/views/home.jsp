@@ -45,12 +45,12 @@
     </c:forEach>
 </table>
 <form action="update" method="get">
-    <select name="residentialType">
+    <select name="residentialTypeName">
     <c:forEach items="${residentialTypes}" var="residentialType">
             <option value="${residentialType.name}">${residentialType.name}</option>
     </c:forEach>
     </select>
-    <select name="district">
+    <select name="districtName">
     <c:forEach items="${districts}" var="district">
         <option value="${district.name}">${district.name}</option>
     </c:forEach>

@@ -16,7 +16,9 @@
     </style>
 </head>
 <body>
-<p>wczytanych ofert: ${countProcessed}, nowych: ${countNew}, zaktualizowanych: ${countUpdated}, zapisanych w bazie: ${countAll}</p>
+<c:forEach items="${counters}" var="counter">
+    <p>wczytanych ofert: ${counter.processed}, nowych: ${counter.created}, zaktualizowanych: ${counter.updated}, zapisanych w bazie: ${counter.all}</p>
+</c:forEach>
 <h1>nowe oferty:</h1>
 <table>
     <tr>
@@ -26,7 +28,7 @@
         <th>cena<br/>[tys. zł]</th>
         <th>cena/m²<br/>[tys. zł]</th>
     </tr>
-    <c:forEach items="${newOffers}" var="offer">
+    <c:forEach items="${createdOffers}" var="offer">
         <tr>
             <td>${offer.description}</td>
             <td>${offer.seller}</td>
@@ -42,7 +44,7 @@
         <th>opis</th>
         <th>sprzedawca</th>
         <th>powierzchnia<br/>[m²]</th>
-        <th>stara cena<br/>[tys. zł]</th>
+        <%--<th>stara cena<br/>[tys. zł]</th>--%>
         <th>nowa cena<br/>[tys. zł]</th>
         <th>cena/m²<br/>[tys. zł]</th>
     </tr>
@@ -51,7 +53,7 @@
             <td>${offer.description}</td>
             <td>${offer.seller}</td>
             <td class="center">${offer.area}</td>
-            <td class="center">${offer.oldPrice}</td>
+            <%--<td class="center">${offer.oldPrice}</td>--%>
             <td class="center">${offer.price}</td>
             <td class="center">${offer.pricePerM2}</td>
         </tr>
