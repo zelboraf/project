@@ -26,12 +26,14 @@
         <th>powierzchnia<br/>[m²]</th>
         <th>cena<br/>[tys. zł]</th>
         <th>cena/m²<br/>[tys. zł]</th>
+        <th>historia cen</th>
     </tr>
     <tr>
         <td colspan="3" style="text-align: center; font-weight: bold">średnio</td>
         <td class="center">${averageOffer.area}</td>
         <td class="center">${averageOffer.price}</td>
         <td class="center">${averageOffer.pricePerM2}</td>
+        <td></td>
     </tr>
     <c:forEach items="${offers}" var="offer">
         <tr>
@@ -41,6 +43,7 @@
             <td class="center">${offer.area}</td>
             <td class="center">${offer.price}</td>
             <td class="center">${offer.pricePerM2}</td>
+            <td class="center"><a href="/price_history/${offer.id}">historia</a></td>
         </tr>
     </c:forEach>
 </table>

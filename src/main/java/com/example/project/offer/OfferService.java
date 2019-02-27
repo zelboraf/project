@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,26 +33,24 @@ public class OfferService {
 		Counter counter = new Counter();
 		for (Offer newOffer : offers) {
 			String offerId = newOffer.getOfferId();
-			try {
-				Offer offer = offerInterface.findOneByOfferId(offerId);
+			Offer offer = offerInterface.findOneByOfferId(offerId);
+			if (offer == null) {
+				offerInterface.save(newOffer);
+				createdOffers.add(newOffer);
+				counter.incCreated();
+			} else {
 				if (newOffer.getPrice() != offer.getPrice()) {
-					log.info("new offer");
+					Price price = new Price(offer.getPrice(), offer.getLocalDateTime());
+					offer.getPriceHistory().add(price);
+					priceInterface.save(price);
 					offer.setPrice(newOffer.getPrice());
 					offer.setLocalDateTime(newOffer.getLocalDateTime());
 					updatedOffers.add(offer);
 					offerInterface.save(offer);
-					Price price = new Price(offer.getPrice(), offer.getLocalDateTime());
-					offer.getPriceHistory().add(price);
-					priceInterface.save(price);
 					counter.incUpdated();
 				}
-			} catch (Exception ex){
-				log.info("new offer");
-				createdOffers.add(newOffer);
-				offerInterface.save(newOffer);
-				counter.incCreated();
+				counter.incProcessed();
 			}
-			counter.incProcessed();
 		}
 		counter.setAll(offerInterface.countAll());
 		counters.add(counter);
@@ -68,5 +67,5 @@ public class OfferService {
 		}
 		return new Offer(0, 0, 0);
 	}
-
 }
+

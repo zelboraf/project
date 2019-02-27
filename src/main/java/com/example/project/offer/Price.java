@@ -17,6 +17,8 @@ public class Price {
 	private double value;
 	private LocalDateTime localDateTime;
 
+	public Price() {}
+
 	public Price(double value, LocalDateTime localDateTime) {
 		this.value = value;
 		this.localDateTime = localDateTime;

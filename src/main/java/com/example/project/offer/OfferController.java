@@ -7,6 +7,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
@@ -19,12 +20,14 @@ public class OfferController {
 	private final OfferService offerService;
 	private final ResidentialTypeInterface residentialTypeInterface;
 	private final DistrictInterface districtInterface;
+	private final PriceInterface priceInterface;
 
-	public OfferController(OfferInterface offerInterface, OfferService offerService, ResidentialTypeInterface residentialTypeInterface, DistrictInterface districtInterface) {
+	public OfferController(OfferInterface offerInterface, OfferService offerService, ResidentialTypeInterface residentialTypeInterface, DistrictInterface districtInterface, PriceInterface priceInterface) {
 		this.offerInterface = offerInterface;
 		this.offerService = offerService;
 		this.residentialTypeInterface = residentialTypeInterface;
 		this.districtInterface = districtInterface;
+		this.priceInterface = priceInterface;
 	}
 
 	private double parseNumber(String s) {
@@ -74,5 +77,13 @@ public class OfferController {
 		model.addAttribute("offers", offerInterface.findAll());
 		return "home";
 	}
+
+	@GetMapping("/price_history/{id}")
+	public String priceHistory(@PathVariable long id, Model model) {
+		List<Price> prices = priceInterface.getAllByOfferId(id);
+		model.addAttribute(prices);
+		return "price_history";
+	}
+
 
 }
