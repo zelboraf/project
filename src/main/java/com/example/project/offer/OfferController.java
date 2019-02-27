@@ -81,11 +81,11 @@ public class OfferController {
 
 	@GetMapping("/price_history/{id}")
 	public String priceHistory(@PathVariable long id, Model model) {
+		Offer offer = offerInterface.getOne(id);
 		List<Price> prices = priceInterface.getAllByOfferId(id);
-		prices.add(new Price(100, LocalDateTime.now()));  /// DODAJ BIEŻĄCĄ!!!
+		prices.add(new Price(offer.getPrice(), offer.getLocalDateTime()));
 		model.addAttribute("prices", prices);
 		return "price_history";
 	}
-
 
 }
