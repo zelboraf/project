@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +82,8 @@ public class OfferController {
 	@GetMapping("/price_history/{id}")
 	public String priceHistory(@PathVariable long id, Model model) {
 		List<Price> prices = priceInterface.getAllByOfferId(id);
-		model.addAttribute(prices);
+		prices.add(new Price(100, LocalDateTime.now()));  /// DODAJ BIEŻĄCĄ!!!
+		model.addAttribute("prices", prices);
 		return "price_history";
 	}
 
