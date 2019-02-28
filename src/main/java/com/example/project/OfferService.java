@@ -1,7 +1,6 @@
-package com.example.project.offer;
+package com.example.project;
 
 import lombok.Data;
-import lombok.extern.java.Log;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,6 @@ import java.util.List;
 @Service
 @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Data
-@Log
 public class OfferService {
 
 	private final OfferInterface offerInterface;
@@ -40,10 +38,11 @@ public class OfferService {
 				counter.incCreated();
 			} else {
 				if (newOffer.getPrice() != offer.getPrice()) {
-					Price price = new Price(offer.getPrice(), offer.getLocalDateTime());
+					Price price = new Price(offer.getPrice(), offer.getPricePerM2(), offer.getLocalDateTime());
 					offer.getPriceHistory().add(price);
 					priceInterface.save(price);
 					offer.setPrice(newOffer.getPrice());
+					offer.setPricePerM2(newOffer.getPricePerM2());
 					offer.setLocalDateTime(newOffer.getLocalDateTime());
 					updatedOffers.add(offer);
 					offerInterface.save(offer);
@@ -58,14 +57,25 @@ public class OfferService {
 	}
 
 	public Offer getAverageOffer() {
-		if (offerInterface.countAll() > 0) {
-			return new Offer(
-					offerInterface.getAvgPrice(),
-					offerInterface.getAvgArea(),
-					offerInterface.getAvgPricePerM2()
-			);
+		if (offerInterface.countAll() == 0) {
+			return new Offer(0, 0, 0);
 		}
-		return new Offer(0, 0, 0);
+		return new Offer(
+				offerInterface.getAveragePrice(),
+				offerInterface.getAverageArea(),
+				offerInterface.getAveragePricePerM2()
+		);
+	}
+
+	public List<Offer> markCheapOffers(List<Offer> offers, Offer averageOffer) {
+		List<Offer> markedOffers = new ArrayList<>();
+		for (Offer offer : offers) {
+			if (offer.getPricePerM2() < averageOffer.getPricePerM2() * 8 / 10d) {
+				offer.setCheap(true);
+			}
+			markedOffers.add(offer);
+		}
+		return markedOffers;
 	}
 }
 

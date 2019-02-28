@@ -1,4 +1,4 @@
-package com.example.project.offer;
+package com.example.project;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,16 +18,19 @@ public class OfferController {
 
 	private final OfferInterface offerInterface;
 	private final OfferService offerService;
-	private final ResidentialTypeInterface residentialTypeInterface;
-	private final DistrictInterface districtInterface;
 	private final PriceInterface priceInterface;
+	private final TypeInterface typeInterface;
+	private final CityInterface cityInterface;
+	private final DistrictInterface districtInterface;
 
-	public OfferController(OfferInterface offerInterface, OfferService offerService, ResidentialTypeInterface residentialTypeInterface, DistrictInterface districtInterface, PriceInterface priceInterface) {
+	public OfferController(OfferInterface offerInterface, OfferService offerService, TypeInterface typeInterface,
+	                       DistrictInterface districtInterface, CityInterface cityInterface, PriceInterface priceInterface) {
 		this.offerInterface = offerInterface;
 		this.offerService = offerService;
-		this.residentialTypeInterface = residentialTypeInterface;
-		this.districtInterface = districtInterface;
 		this.priceInterface = priceInterface;
+		this.typeInterface = typeInterface;
+		this.cityInterface = cityInterface;
+		this.districtInterface = districtInterface;
 	}
 
 	private double parseNumber(String s) {
@@ -36,16 +38,21 @@ public class OfferController {
 	}
 
 	@GetMapping("/update")
-	public String updateOffers(@RequestParam String residentialTypeName, @RequestParam String districtName, Model model) {
+	public String updateOffers(
+			@RequestParam String typeName,
+			@RequestParam String cityName,
+			@RequestParam String districtName,
+			Model model){
 		try {
-			String URL = "https://www.otodom.pl/sprzedaz/" + residentialTypeName + "/gdansk/" + districtName;
+			String URL = "https://www.otodom.pl/sprzedaz/" + typeName + "/" + cityName + "/" + districtName;
 			String CSS_QUERY = "div.col-md-content article.offer-item[data-featured-name='listing_no_promo']";
 
 			Document document = Jsoup.connect(URL).get();
 			Elements offerHtml = document.select(CSS_QUERY);
 			List<Offer> offers = new ArrayList<>();
+			Type type = typeInterface.getOneByName(typeName);
+			City city = cityInterface.getOneByName(cityName);
 			District district = districtInterface.getOneByName(districtName);
-			ResidentialType residentialType = residentialTypeInterface.getOneByName(residentialTypeName);
 			for (Element e : offerHtml) {
 				Offer offer = new Offer(
 						e.attr("data-tracking-id"),
@@ -53,10 +60,10 @@ public class OfferController {
 						parseNumber(e.select(".offer-item-area").text()),
 						e.select(".offer-item-title").text(),
 						e.select(".pull-right").text(),
-						residentialType,
+						type,
+						city,
 						district
 				);
-//				Price price = new Price();
 				offers.add(offer);
 			}
 			List<List> updatedNewOffers = offerService.updateNewOffers(offers);
@@ -72,20 +79,24 @@ public class OfferController {
 
 	@GetMapping("/")
 	public String showOffers(Model model) {
-		model.addAttribute("averageOffer", offerService.getAverageOffer());
-		model.addAttribute("residentialTypes", residentialTypeInterface.findAll());
+		model.addAttribute("types", typeInterface.findAll());
+		model.addAttribute("cities", cityInterface.findAll());
 		model.addAttribute("districts", districtInterface.findAll());
-		model.addAttribute("offers", offerInterface.findAll());
+		Offer averageOffer = offerService.getAverageOffer();
+		model.addAttribute("averageOffer", averageOffer);
+		List<Offer> offers = offerService.markCheapOffers(offerInterface.findAll(), averageOffer);
+		model.addAttribute("offers", offers);
 		return "home";
 	}
 
-	@GetMapping("/price_history/{id}")
+	@GetMapping("/details/{id}")
 	public String priceHistory(@PathVariable long id, Model model) {
-		Offer offer = offerInterface.getOne(id);
 		List<Price> prices = priceInterface.getAllByOfferId(id);
-		prices.add(new Price(offer.getPrice(), offer.getLocalDateTime()));
+		Offer offer = offerInterface.getOne(id);
+		prices.add(new Price(offer.getPrice(), offer.getPricePerM2(), offer.getLocalDateTime()));
 		model.addAttribute("prices", prices);
-		return "price_history";
+		model.addAttribute("offer", offer);
+		return "details";
 	}
 
 }

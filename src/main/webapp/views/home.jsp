@@ -14,44 +14,62 @@
         .center {
             text-align: center;
         }
+        .bold {
+            font-weight: bold;
+        }
+        .lightgray {
+            background: lightgray;
+        }
+        .lightgreen {
+            background: lightgreen;
+        }
     </style>
 </head>
 <body>
-<h1>mieszkania:</h1>
+<h1>Offers:</h1>
 <table>
     <tr>
-        <th>opis</th>
-        <th>sprzedawca</th>
-        <th>dzielnica</th>
-        <th>powierzchnia<br/>[m²]</th>
-        <th>cena<br/>[tys. zł]</th>
-        <th>cena/m²<br/>[tys. zł]</th>
-        <th>historia cen</th>
-    </tr>
-    <tr>
-        <td colspan="3" style="text-align: center; font-weight: bold">średnio</td>
-        <td class="center">${averageOffer.area}</td>
-        <td class="center">${averageOffer.price}</td>
-        <td class="center">${averageOffer.pricePerM2}</td>
-        <td></td>
+        <th>Description</th>
+        <th>Seller</th>
+        <th>Type</th>
+        <th>City</th>
+        <th>District</th>
+        <th>Area<br/>[m²]</th>
+        <th>price<br/>[tys. zł]</th>
+        <th>price/m²<br/>[tys. zł]</th>
+        <th>details</th>
     </tr>
     <c:forEach items="${offers}" var="offer">
-        <tr>
+        <tr class="${offer.cheap == true ? 'lightgreen' : ''}">
             <td>${offer.description}</td>
             <td>${offer.seller}</td>
+            <td>${offer.type.name}</td>
+            <td>${offer.city.name}</td>
             <td>${offer.district.name}</td>
             <td class="center">${offer.area}</td>
             <td class="center">${offer.price}</td>
             <td class="center">${offer.pricePerM2}</td>
-            <td class="center"><a href="/price_history/${offer.id}">historia</a></td>
+            <td class="center"><a href="/details/${offer.id}">details</a></td>
         </tr>
     </c:forEach>
+    <tr class="lightgray">
+        <td colspan="5" class="center bold">average offer</td>
+        <td class="center bold">${averageOffer.area}</td>
+        <td class="center bold">${averageOffer.price}</td>
+        <td class="center bold">${averageOffer.pricePerM2}</td>
+        <td></td>
+    </tr>
 </table>
 <form action="update" method="get">
-    <select name="residentialTypeName">
-    <c:forEach items="${residentialTypes}" var="residentialType">
-            <option value="${residentialType.name}">${residentialType.name}</option>
+    <select name="typeName">
+    <c:forEach items="${types}" var="type">
+            <option value="${type.name}">${type.name}</option>
     </c:forEach>
+    </select>
+    <select name="cityName">
+        <c:forEach items="${cities}" var="city">
+            <option value="${city.name}">${city.name}</option>
+        </c:forEach>
     </select>
     <select name="districtName">
     <c:forEach items="${districts}" var="district">
@@ -59,7 +77,6 @@
     </c:forEach>
     </select>
     <input type="submit" value="update">
-
 </form>
 </body>
 </html>

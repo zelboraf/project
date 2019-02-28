@@ -1,4 +1,4 @@
-package com.example.project.offer;
+package com.example.project;
 
 import lombok.Data;
 

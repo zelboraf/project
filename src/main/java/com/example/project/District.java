@@ -1,13 +1,13 @@
-package com.example.project.offer;
+package com.example.project;
 
 import lombok.Data;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "residential_type")
+@Table(name = "districts")
 @Data
-public class ResidentialType {
+public class District {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
